@@ -83,6 +83,7 @@ namespace osu.Game.Rulesets.Fposu.UI
         // resuming by clicking the cursor (osu!'s default) doesn't work well while turning the camera, so a countdown is used instead.
         protected override ResumeOverlay CreateResumeOverlay() => new DelayedResumeOverlay { Scale = new Vector2(0.65f) };
 
+#if SLOP
         // displayed on the screen like the playfield, where the skip button can be clicked by looking at it.
         public override Container? BreakAndSkipOverlayContainer => mainAdjustmentContainer?.BreakAndSkipOverlays;
 
@@ -90,6 +91,7 @@ namespace osu.Game.Rulesets.Fposu.UI
         public override Container? StoryboardContainer => mainAdjustmentContainer?.Storyboard;
 
         public override Container? StoryboardOverlayLayerContainer => mainAdjustmentContainer?.StoryboardOverlayLayer;
+#endif
 
         /// <summary>
         /// The input manager of the resume overlay, which is a countdown and so doesn't need positional input.

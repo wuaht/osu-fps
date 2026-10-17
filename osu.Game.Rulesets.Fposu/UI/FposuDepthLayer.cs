@@ -10,7 +10,9 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Rendering;
+using osu.Framework.Platform;
 using osu.Game.Configuration;
+using osu.Game.Rulesets.Fposu.Configuration;
 using osu.Game.Rulesets.Fposu.Mods;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Osu.Objects.Drawables;
@@ -74,9 +76,9 @@ namespace osu.Game.Rulesets.Fposu.UI
         }
 
         [BackgroundDependencyLoader]
-        private void load(OsuConfigManager config)
+        private void load(OsuConfigManager config, Storage storage)
         {
-            fov = config.GetBindable<float>(OsuSetting.SlopFposuFov);
+            fov = FposuConfig.GetBindable<float>(config, storage, FposuSetting.Fov);
         }
 
         /// <summary>

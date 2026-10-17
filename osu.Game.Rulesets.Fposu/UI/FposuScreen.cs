@@ -15,6 +15,7 @@ using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Platform;
 using osu.Game.Configuration;
+using osu.Game.Rulesets.Fposu.Configuration;
 using osu.Game.Skinning;
 using osuTK;
 using osuTK.Graphics;
@@ -30,7 +31,10 @@ namespace osu.Game.Rulesets.Fposu.UI
     /// This container itself is larger than the window (see <see cref="horizontal_overflow"/> and <see cref="vertical_overflow"/>),
     /// so that what the children draw beyond the edges of the window (e.g. large approach circles) is displayed as well instead of being cut off.
     /// </remarks>
-    public partial class FposuScreen : Container, IBufferedDrawable, IBackbufferProvider
+    public partial class FposuScreen : Container, IBufferedDrawable
+#if SLOP
+        , IBackbufferProvider
+#endif
     {
         /// <summary>
         /// The number of columns each face of the mesh is drawn as, and the number of rows of the mesh.
@@ -159,15 +163,15 @@ namespace osu.Game.Rulesets.Fposu.UI
         }
 
         [BackgroundDependencyLoader]
-        private void load(ShaderManager shaders, OsuConfigManager config, GameHost host)
+        private void load(ShaderManager shaders, OsuConfigManager config, Storage storage, GameHost host)
         {
             TextureShader = shaders.Load(VertexShaderDescriptor.TEXTURE_2, FragmentShaderDescriptor.TEXTURE);
 
-            fov = config.GetBindable<float>(OsuSetting.SlopFposuFov);
-            distance = config.GetBindable<float>(OsuSetting.SlopFposuDistance);
-            curved = config.GetBindable<bool>(OsuSetting.SlopFposuCurved);
-            backgroundCube = config.GetBindable<bool>(OsuSetting.SlopFposuBackgroundCube);
-            skybox = config.GetBindable<bool>(OsuSetting.SlopFposuSkybox);
+            fov = FposuConfig.GetBindable<float>(config, storage, FposuSetting.Fov);
+            distance = FposuConfig.GetBindable<float>(config, storage, FposuSetting.Distance);
+            curved = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.Curved);
+            backgroundCube = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.BackgroundCube);
+            skybox = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.Skybox);
 
             var image = default_skybox_image.Value;
 
@@ -223,6 +227,7 @@ namespace osu.Game.Rulesets.Fposu.UI
             Invalidate(Invalidation.DrawNode);
         }
 
+#if SLOP
         // the children are drawn to the frame buffer of this screen rather than the one of the game,
         // so drawables blurring what is behind them (e.g. frosted slider bodies) have to blur this frame buffer instead.
         RectangleF IBackbufferProvider.BackbufferDrawRectangle => ScreenSpaceDrawQuad.AABBFloat;
@@ -231,6 +236,7 @@ namespace osu.Game.Rulesets.Fposu.UI
         {
             // always drawn to a frame buffer.
         }
+#endif
 
         protected override RectangleF ComputeChildMaskingBounds() => ScreenSpaceDrawQuad.AABBFloat; // like BufferedContainer, children should never be masked away.
 

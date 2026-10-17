@@ -1,0 +1,22 @@
+<Project>
+  <PropertyGroup Label="C#">
+    <LangVersion>14.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup Label="Resources">
+    <EmbeddedResource Include="Resources\**\*.*" />
+  </ItemGroup>
+
+  <!--
+    When this repository is a submodule of the osu! client it ships with, the ruleset is built against the client's source,
+    which offers additional hooks (e.g. displaying the storyboard and the skip button in 3D, and playing osu! beatmaps without converting them).
+    Otherwise it's built against the official osu!lazer packages.
+  -->
+  <PropertyGroup Label="osu!">
+    <OsuVersion>2026.916.0</OsuVersion>
+    <ClientDirectory>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))\</ClientDirectory>
+    <BuildAgainstClient Condition="'$(BuildAgainstClient)' == '' And Exists('$(ClientDirectory)osu.Game\osu.Game.csproj')">true</BuildAgainstClient>
+    <DefineConstants Condition="'$(BuildAgainstClient)' == 'true'">$(DefineConstants);SLOP</DefineConstants>
+  </PropertyGroup>
+</Project>

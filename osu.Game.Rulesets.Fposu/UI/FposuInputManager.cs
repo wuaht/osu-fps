@@ -8,7 +8,9 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.StateChanges;
+using osu.Framework.Platform;
 using osu.Game.Configuration;
+using osu.Game.Rulesets.Fposu.Configuration;
 using osu.Game.Graphics.Containers;
 using osu.Game.Rulesets.Osu;
 using osu.Game.Screens.Play;
@@ -55,15 +57,15 @@ namespace osu.Game.Rulesets.Fposu.UI
         }
 
         [BackgroundDependencyLoader]
-        private void load(OsuConfigManager config)
+        private void load(OsuConfigManager config, Storage storage)
         {
             AddInternal(mouseInput = new FposuMouseInput());
 
-            mouseDpi = config.GetBindable<int>(OsuSetting.SlopFposuMouseDpi);
-            cmPer360 = config.GetBindable<double>(OsuSetting.SlopFposuCmPer360);
-            invertHorizontal = config.GetBindable<bool>(OsuSetting.SlopFposuInvertHorizontal);
-            invertVertical = config.GetBindable<bool>(OsuSetting.SlopFposuInvertVertical);
-            absoluteMode = config.GetBindable<bool>(OsuSetting.SlopFposuAbsoluteMode);
+            mouseDpi = FposuConfig.GetBindable<int>(config, storage, FposuSetting.MouseDpi);
+            cmPer360 = FposuConfig.GetBindable<double>(config, storage, FposuSetting.CmPer360);
+            invertHorizontal = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.InvertHorizontal);
+            invertVertical = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.InvertVertical);
+            absoluteMode = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.AbsoluteMode);
             mouseButtonsDisabled = config.GetBindable<bool>(OsuSetting.MouseDisableButtons);
         }
 

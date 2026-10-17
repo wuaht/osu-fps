@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\osu.TestProject.props"/>
+  <!-- The tests cover the integration with the client osu!fps ships with, so they can only be built as part of it (see Directory.Build.props). -->
+  <Import Project="$(ClientDirectory)osu.TestProject.props" Condition="'$(BuildAgainstClient)' == 'true'" />
   <ItemGroup Label="Package References">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.10.0"/>
     <PackageReference Include="NUnit" Version="4.6.1"/>
@@ -11,6 +12,6 @@
   </PropertyGroup>
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\osu.Game.Rulesets.Fposu\osu.Game.Rulesets.Fposu.csproj"/>
-    <ProjectReference Include="..\osu.Game.Tests\osu.Game.Tests.csproj"/>
+    <ProjectReference Include="$(ClientDirectory)osu.Game.Tests\osu.Game.Tests.csproj"/>
   </ItemGroup>
 </Project>

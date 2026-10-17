@@ -8,6 +8,7 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
+using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Difficulty;
 using osu.Game.Rulesets.Fposu.Mods;
 using osu.Game.Rulesets.Fposu.UI;
@@ -34,12 +35,17 @@ namespace osu.Game.Rulesets.Fposu
     /// The camera is turned with the mouse, and the cursor is where the centre of the view hits the screen.
     /// Everything except the presentation (beatmaps, mods, scoring, difficulty etc.) is taken from the <see cref="OsuRuleset"/>.
     /// </remarks>
-    public class FposuRuleset : Ruleset, IRulesetVariant
+    public class FposuRuleset : Ruleset
+#if SLOP
+        , IRulesetVariant
+#endif
     {
         public const string SHORT_NAME = "fposu";
 
-        // osu! beatmaps are played as they are, with the configuration and settings of osu!.
+#if SLOP
+        // osu! beatmaps are played as they are, with the configuration of osu!. The osu!fps settings are stored separately (see FposuConfigManager).
         public string BaseRulesetShortName => OsuRuleset.SHORT_NAME;
+#endif
 
         /// <summary>
         /// The osu! ruleset, which everything except the presentation is taken from.
@@ -53,6 +59,8 @@ namespace osu.Game.Rulesets.Fposu
         public override string PlayingVerb => "Aiming at circles";
 
         public override string RulesetAPIVersionSupported => CURRENT_RULESET_API_VERSION;
+
+        public override RulesetSettingsSubsection CreateSettings() => new FposuSettings(this);
 
         public override Drawable CreateIcon() => new FposuRulesetIcon(this);
 

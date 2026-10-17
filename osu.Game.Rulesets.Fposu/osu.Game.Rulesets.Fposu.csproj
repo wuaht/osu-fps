@@ -8,12 +8,17 @@
 
   <PropertyGroup Label="Nuget">
     <Title>osu!fps (ruleset)</Title>
-    <PackageId>ppy.osu.Game.Rulesets.Fposu</PackageId>
+    <PackageId>osu.Game.Rulesets.Fposu</PackageId>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup Label="Project References">
-    <ProjectReference Include="..\osu.Game\osu.Game.csproj" />
-    <ProjectReference Include="..\osu.Game.Rulesets.Osu\osu.Game.Rulesets.Osu.csproj" />
+  <ItemGroup Label="Client References" Condition="'$(BuildAgainstClient)' == 'true'">
+    <ProjectReference Include="$(ClientDirectory)osu.Game\osu.Game.csproj" />
+    <ProjectReference Include="$(ClientDirectory)osu.Game.Rulesets.Osu\osu.Game.Rulesets.Osu.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Label="Package References" Condition="'$(BuildAgainstClient)' != 'true'">
+    <PackageReference Include="ppy.osu.Game" Version="$(OsuVersion)" />
+    <PackageReference Include="ppy.osu.Game.Rulesets.Osu" Version="$(OsuVersion)" />
   </ItemGroup>
 </Project>
