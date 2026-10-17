@@ -8,7 +8,7 @@ Based on [McOsu](https://github.com/McKay42/McOsu)'s FPoSu.
 
 Gameplay is the same as in osu! (beatmaps, mods, scoring and difficulty are taken from the osu! ruleset), but it's displayed on a screen in front of a first person camera. The camera is turned with the mouse like in first person shooters, and the cursor is where the centre of the view hits the screen.
 
-This ruleset was a gamemode for [my modded osu!lazer client](https://github.com/wuaht/osu), but now it is a separate ruleset and can be used with standard osu!lazer as well.
+This ruleset was a gamemode for [my modded osu!lazer client](https://github.com/wuaht/osu), but now it is a separate ruleset and can be used with standard osu!lazer as well. (if u want automated updates for osu!fps u can use the client if u want)
 
 ## Installing
 
@@ -28,7 +28,7 @@ The ruleset is built against the official osu!lazer packages, whose version is s
 
 When this repository is checked out as `osu-fps` next to the projects of an osu! client source tree (e.g. as a submodule), the ruleset is built against that source instead and compiled with the `SLOP` symbol. This enables integrations which the official client doesn't offer (e.g. playing osu! beatmaps without converting them, and storing the settings in the client's own configuration). On the official client, the storyboard and the skip button are moved into 3D after the player has created them instead, and converted beatmaps are shown in song select while osu!fps is selected. The tests are only built in this case.
 
-To build only the DLL for official osu!lazer (also next to a client source tree), run `./build-dll.ps1`, which puts it in `bin/`. With `-Install`, it's also copied into the rulesets folder of osu!lazer (`%AppData%\osuulesets`).
+To build only the DLL for official osu!lazer (also next to a client source tree), run `./build-dll.ps1`, which puts it in `bin/`. With `-Install`, it's also copied into the rulesets folder of osu!lazer (`%AppData%\osu\rulesets`).
 
 ## Licence
 
