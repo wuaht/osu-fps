@@ -3,6 +3,10 @@
 
 using System.Runtime.CompilerServices;
 using osu.Framework.Allocation;
+#if !SLOP
+using osu.Framework.Bindables;
+using osu.Game.Configuration;
+#endif
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Sprites;
@@ -41,5 +45,22 @@ namespace osu.Game.Rulesets.Fposu.UI
             var textures = texture_stores.GetValue(host.Renderer, renderer => new TextureStore(renderer, host.CreateTextureLoaderStore(ruleset.CreateResourceStore())));
             Texture = textures.Get(texture_name);
         }
+
+#if !SLOP
+        [Resolved]
+        private OsuConfigManager? config { get; set; }
+
+        [Resolved]
+        private IBindable<RulesetInfo>? gameRuleset { get; set; }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            // icons of all rulesets are created by the toolbar at startup, which is the earliest point osu!fps code runs in the game.
+            if (config != null && gameRuleset != null)
+                FposuConvertedBeatmaps.Register(config, gameRuleset);
+        }
+#endif
     }
 }

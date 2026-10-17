@@ -10,7 +10,7 @@
 
   <!--
     When this repository is a submodule of the osu! client it ships with, the ruleset is built against the client's source,
-    which offers additional hooks (e.g. displaying the storyboard and the skip button in 3D, and playing osu! beatmaps without converting them).
+    which offers additional hooks (e.g. playing osu! beatmaps without converting them).
     Otherwise it's built against the official osu!lazer packages.
   -->
   <PropertyGroup Label="osu!">

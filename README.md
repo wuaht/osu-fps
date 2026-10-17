@@ -26,7 +26,7 @@ dotnet build osu.Game.Rulesets.Fposu
 
 The ruleset is built against the official osu!lazer packages, whose version is set in `Directory.Build.props`.
 
-When this repository is checked out as `osu-fps` next to the projects of an osu! client source tree (e.g. as a submodule), the ruleset is built against that source instead and compiled with the `SLOP` symbol. This enables integrations which the official client doesn't offer (displaying the storyboard and the skip button in 3D, playing osu! beatmaps without converting them, and storing the settings in the client's own configuration). The tests are only built in this case.
+When this repository is checked out as `osu-fps` next to the projects of an osu! client source tree (e.g. as a submodule), the ruleset is built against that source instead and compiled with the `SLOP` symbol. This enables integrations which the official client doesn't offer (e.g. playing osu! beatmaps without converting them, and storing the settings in the client's own configuration). On the official client, the storyboard and the skip button are moved into 3D after the player has created them instead, and converted beatmaps are shown in song select while osu!fps is selected. The tests are only built in this case.
 
 ## Licence
 

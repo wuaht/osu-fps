@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input;
 using osu.Game.Beatmaps;
@@ -42,6 +43,11 @@ namespace osu.Game.Rulesets.Fposu.UI
         private FposuPlayfieldAdjustmentContainer? mainAdjustmentContainer;
         private bool mainInputManagerCreated;
 
+#if !SLOP
+        [Resolved]
+        private Player? player { get; set; }
+#endif
+
         public DrawableFposuRuleset(FposuRuleset ruleset, IBeatmap beatmap, IReadOnlyList<Mod>? mods = null)
             : base(ruleset, beatmap, mods)
         {
@@ -57,6 +63,10 @@ namespace osu.Game.Rulesets.Fposu.UI
 
             if (depthMod != null)
                 mainAdjustmentContainer!.DepthLayer.Apply(depthMod, Playfield);
+
+#if !SLOP
+            moveOverlaysToScreen();
+#endif
         }
 
         // the input manager and the playfield adjustment container are also created for the resume overlay, which shouldn't be displayed in 3D.
@@ -91,6 +101,41 @@ namespace osu.Game.Rulesets.Fposu.UI
         public override Container? StoryboardContainer => mainAdjustmentContainer?.Storyboard;
 
         public override Container? StoryboardOverlayLayerContainer => mainAdjustmentContainer?.StoryboardOverlayLayer;
+#else
+        /// <summary>
+        /// Official clients don't let rulesets choose where the storyboard and the break and skip overlays are displayed,
+        /// so they're moved onto the screen after the player has created them.
+        /// </summary>
+        private void moveOverlaysToScreen()
+        {
+            if (player == null || mainAdjustmentContainer == null)
+                return;
+
+            // the storyboard (and video) is displayed on the screen as the background, instead of being hidden behind the 3D environment.
+            if (!player.DimmableStoryboard.HasProxy)
+                mainAdjustmentContainer.Storyboard.Add(player.DimmableStoryboard.CreateProxy());
+
+            if (player.BreakOverlay.Parent is not Container overlayContainer)
+                return;
+
+            // the overlay layer of the storyboard is proxied as the first overlay (below the HUD), and only one proxy can exist per drawable.
+            var storyboardOverlayLayer = overlayContainer.Children.FirstOrDefault(d => d.IsProxy);
+
+            // displayed on the screen like the playfield, where the skip button can be clicked by looking at it.
+            var breakAndSkipOverlays = overlayContainer.Children.Where(d => d is BreakOverlay or SkipOverlay).ToArray();
+
+            if (storyboardOverlayLayer != null)
+            {
+                overlayContainer.Remove(storyboardOverlayLayer, false);
+                mainAdjustmentContainer.StoryboardOverlayLayer.Add(storyboardOverlayLayer);
+            }
+
+            foreach (var overlay in breakAndSkipOverlays)
+            {
+                overlayContainer.Remove(overlay, false);
+                mainAdjustmentContainer.BreakAndSkipOverlays.Add(overlay);
+            }
+        }
 #endif
 
         /// <summary>
