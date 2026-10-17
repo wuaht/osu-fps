@@ -1,3 +1,7 @@
+<p align="center">
+  <img width="500" alt="osu! logo" src="assets/osu-fps.png">
+</p>
+
 # osu!fps
 
 Based on [McOsu](https://github.com/McKay42/McOsu)'s FPoSu.
