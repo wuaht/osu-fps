@@ -1,8 +1,10 @@
 # osu!fps
 
-osu! in first person, for aim training. Based on [McOsu](https://github.com/McKay42/McOsu)'s FPoSu.
+Based on [McOsu](https://github.com/McKay42/McOsu)'s FPoSu.
 
 Gameplay is the same as in osu! (beatmaps, mods, scoring and difficulty are taken from the osu! ruleset), but it's displayed on a screen in front of a first person camera. The camera is turned with the mouse like in first person shooters, and the cursor is where the centre of the view hits the screen.
+
+This ruleset was supposed to be a new mode for [my modded osu!lazer client](https://github.com/wuaht/osu), but now it is a separate ruleset to be used with standard osu!lazer as well.
 
 ## Installing
 
