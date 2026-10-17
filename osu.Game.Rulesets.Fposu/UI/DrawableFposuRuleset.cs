@@ -6,7 +6,10 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Input;
+using osu.Framework.Input.Bindings;
+using osu.Framework.Input.Events;
 using osu.Game.Beatmaps;
+using osu.Game.Input.Bindings;
 using osu.Game.Rulesets.Fposu.Mods;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Osu;
@@ -20,7 +23,7 @@ namespace osu.Game.Rulesets.Fposu.UI
     /// <summary>
     /// The osu! gameplay, displayed in first person.
     /// </summary>
-    public partial class DrawableFposuRuleset : DrawableOsuRuleset
+    public partial class DrawableFposuRuleset : DrawableOsuRuleset, IKeyBindingHandler<GlobalAction>
     {
         // initialised before the base constructor, which creates the input manager and the playfield adjustment container.
         private readonly FposuCamera camera = new FposuCamera();
@@ -137,6 +140,19 @@ namespace osu.Game.Rulesets.Fposu.UI
             }
         }
 #endif
+
+        // the skip overlays are displayed on the screen, which is inside of the ruleset's input manager, so global key bindings (e.g. the one for skipping) don't reach them.
+        public bool OnPressed(KeyBindingPressEvent<GlobalAction> e)
+        {
+            if (e.Action != GlobalAction.SkipCutscene || mainAdjustmentContainer == null)
+                return false;
+
+            return mainAdjustmentContainer.BreakAndSkipOverlays.OfType<SkipOverlay>().Any(skipOverlay => skipOverlay.OnPressed(e));
+        }
+
+        public void OnReleased(KeyBindingReleaseEvent<GlobalAction> e)
+        {
+        }
 
         /// <summary>
         /// The input manager of the resume overlay, which is a countdown and so doesn't need positional input.
