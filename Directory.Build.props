@@ -4,6 +4,11 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- build-dll.ps1 builds into separate folders, so the default ones of the project mustn't be included in that build either. -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);bin/**;obj/**</DefaultItemExcludes>
+  </PropertyGroup>
+
   <ItemGroup Label="Resources">
     <EmbeddedResource Include="Resources\**\*.*" />
   </ItemGroup>

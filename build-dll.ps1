@@ -13,12 +13,15 @@ $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
 $project = Join-Path $root 'osu.Game.Rulesets.Fposu'
 $outputDir = Join-Path $root 'bin'
+# separate from the project's own bin / obj, which are used by the client build when this repository is a submodule of it.
+$buildOutputDir = Join-Path $root 'bin/official/'
+$intermediateDir = Join-Path $root 'obj/official/'
 
 # BuildAgainstClient=false, as this repository may be checked out next to an osu! client source tree.
-dotnet build $project -c Release -p:BuildAgainstClient=false -nologo
+dotnet build $project -c Release -nologo -p:BuildAgainstClient=false "-p:BaseOutputPath=$buildOutputDir" "-p:BaseIntermediateOutputPath=$intermediateDir"
 if ($LASTEXITCODE -ne 0) { throw "Build failed (exit code $LASTEXITCODE)." }
 
-$dll = Get-ChildItem (Join-Path $project 'bin/Release') -Recurse -Filter 'osu.Game.Rulesets.Fposu.dll' |
+$dll = Get-ChildItem (Join-Path $buildOutputDir 'Release') -Recurse -Filter 'osu.Game.Rulesets.Fposu.dll' |
     Sort-Object LastWriteTime -Descending |
     Select-Object -First 1
 if (-not $dll) { throw 'The built DLL could not be found.' }
