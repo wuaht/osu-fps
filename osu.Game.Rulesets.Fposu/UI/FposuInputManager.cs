@@ -6,6 +6,7 @@ using System.Linq;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
+using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Platform;
@@ -67,6 +68,8 @@ namespace osu.Game.Rulesets.Fposu.UI
             invertVertical = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.InvertVertical);
             absoluteMode = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.AbsoluteMode);
             mouseButtonsDisabled = config.GetBindable<bool>(OsuSetting.MouseDisableButtons);
+
+            KeyBindingContainer.Add(new SkipButtonActionListener(this));
         }
 
         protected override bool Handle(UIEvent e)
@@ -77,18 +80,48 @@ namespace osu.Game.Rulesets.Fposu.UI
 
             // the skip button is displayed on the screen and so receives input through this input manager, which blocks mouse buttons while they are disabled in gameplay.
             // it stays clickable, like in osu!, where it is outside of the ruleset.
-            if (e is MouseDownEvent && mouseButtonsDisabled.Value)
-            {
-                var skipButton = HoveredDrawables.OfType<OsuClickableContainer>().FirstOrDefault(d => d.FindClosestParent<SkipOverlay>() != null);
-
-                if (skipButton != null)
-                {
-                    skipButton.TriggerClick();
-                    return true;
-                }
-            }
+            if (e is MouseDownEvent && mouseButtonsDisabled.Value && triggerHoveredSkipButton())
+                return true;
 
             return base.Handle(e);
+        }
+
+        private bool triggerHoveredSkipButton()
+        {
+            var skipButton = HoveredDrawables.OfType<OsuClickableContainer>().FirstOrDefault(d => d.FindClosestParent<SkipOverlay>() != null);
+
+            if (skipButton == null)
+                return false;
+
+            skipButton.TriggerClick();
+            return true;
+        }
+
+        /// <summary>
+        /// Clicks the skip button with the gameplay keys (like in osu!stable) while it's looked at.
+        /// The skip button receives the actions because it's displayed on the screen, inside of this input manager, but it only handles clicks itself.
+        /// </summary>
+        private partial class SkipButtonActionListener : Component, IKeyBindingHandler<OsuAction>
+        {
+            private readonly FposuInputManager inputManager;
+
+            public SkipButtonActionListener(FposuInputManager inputManager)
+            {
+                this.inputManager = inputManager;
+            }
+
+            public bool OnPressed(KeyBindingPressEvent<OsuAction> e)
+            {
+                // mouse buttons click the skip button on their own.
+                if (e.Repeat || e.CurrentState.Mouse.Buttons.HasAnyButtonPressed)
+                    return false;
+
+                return e.Action is OsuAction.LeftButton or OsuAction.RightButton && inputManager.triggerHoveredSkipButton();
+            }
+
+            public void OnReleased(KeyBindingReleaseEvent<OsuAction> e)
+            {
+            }
         }
 
         /// <summary>
