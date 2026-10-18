@@ -3,8 +3,12 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using osu.Framework.Allocation;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Lines;
 using osu.Framework.Input;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
@@ -13,6 +17,8 @@ using osu.Game.Input.Bindings;
 using osu.Game.Rulesets.Fposu.Mods;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Osu;
+using osu.Game.Rulesets.Osu.Objects.Drawables;
+using osu.Game.Rulesets.Osu.Skinning;
 using osu.Game.Rulesets.Osu.UI;
 using osu.Game.Rulesets.UI;
 using osu.Game.Screens.Play;
@@ -43,6 +49,11 @@ namespace osu.Game.Rulesets.Fposu.UI
         /// </summary>
         public FposuInputManager FposuInputManager => (FposuInputManager)base.KeyBindingInputManager;
 
+        /// <summary>
+        /// The playfield adjustment container of the main playfield, which displays the game on the screen.
+        /// </summary>
+        public FposuPlayfieldAdjustmentContainer MainAdjustmentContainer => mainAdjustmentContainer!;
+
         private FposuPlayfieldAdjustmentContainer? mainAdjustmentContainer;
         private bool mainInputManagerCreated;
 
@@ -70,6 +81,47 @@ namespace osu.Game.Rulesets.Fposu.UI
 #if !SLOP
             moveOverlaysToScreen();
 #endif
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            unclipSliderBodies();
+        }
+
+        private static readonly PropertyInfo? slider_body_path = typeof(SliderBody).GetProperty("Path", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly PropertyInfo? path_shared_data = typeof(Path).GetProperty("SharedData", BindingFlags.Instance | BindingFlags.NonPublic);
+        private static readonly FieldInfo? clip_to_root_node = typeof(BufferedDrawNodeSharedData).GetField(nameof(BufferedDrawNodeSharedData.ClipToRootNode));
+
+        private readonly ConditionalWeakTable<Path, object> unclippedPaths = new ConditionalWeakTable<Path, object>();
+
+        /// <summary>
+        /// Slider bodies are drawn to frame buffers, which are cut off at the edges of the window.
+        /// The screen extends beyond the window though, so that would cut off slider bodies on the screen.
+        /// </summary>
+        /// <remarks>
+        /// The framework doesn't let paths choose this, so it's changed through reflection (which is ignored if it changes).
+        /// </remarks>
+        private void unclipSliderBodies()
+        {
+            if (slider_body_path == null || path_shared_data == null || clip_to_root_node == null)
+                return;
+
+            foreach (var drawable in Playfield.HitObjectContainer.AliveObjects)
+            {
+                if (drawable is not DrawableSlider slider || slider.SliderBody == null)
+                    continue;
+
+                if (slider_body_path.GetValue(slider.SliderBody) is not Path path || unclippedPaths.TryGetValue(path, out _))
+                    continue;
+
+                // paths are recycled by the slider body, so each one is changed once.
+                if (path_shared_data.GetValue(path) is BufferedDrawNodeSharedData sharedData)
+                    clip_to_root_node.SetValue(sharedData, false);
+
+                unclippedPaths.Add(path, null!);
+            }
         }
 
         // the input manager and the playfield adjustment container are also created for the resume overlay, which shouldn't be displayed in 3D.

@@ -232,6 +232,10 @@ namespace osu.Game.Rulesets.Fposu.UI
         // so drawables blurring what is behind them (e.g. frosted slider bodies) have to blur this frame buffer instead.
         RectangleF IBackbufferProvider.BackbufferDrawRectangle => ScreenSpaceDrawQuad.AABBFloat;
 
+        // the screen is transparent beyond the window (showing the 3D environment), where frosted slider bodies would have nothing to blur and be nearly invisible.
+        // they're blended with black there instead, like the window's own background.
+        Color4 IBackbufferProvider.BackdropUnderlayColour => Color4.Black;
+
         void IBackbufferProvider.RequestBackbuffer()
         {
             // always drawn to a frame buffer.
