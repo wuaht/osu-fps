@@ -117,6 +117,12 @@ namespace osu.Game.Rulesets.Fposu.UI
                 }),
                 new SettingsItemV2(new FormCheckBox
                 {
+                    Caption = FposuStrings.ScaleCursorWithDistance,
+                    HintText = FposuStrings.ScaleCursorWithDistanceDescription,
+                    Current = bind<bool>(FposuSetting.ScaleCursorWithDistance),
+                }),
+                new SettingsItemV2(new FormCheckBox
+                {
                     Caption = FposuStrings.Curved,
                     HintText = FposuStrings.CurvedDescription,
                     Current = bind<bool>(FposuSetting.Curved),

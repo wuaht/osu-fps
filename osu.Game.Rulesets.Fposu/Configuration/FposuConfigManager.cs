@@ -60,6 +60,7 @@ namespace osu.Game.Rulesets.Fposu.Configuration
             SetDefault(FposuSetting.BackgroundCube, true);
             SetDefault(FposuSetting.Skybox, true);
             SetDefault(FposuSetting.ShowBackground, true);
+            SetDefault(FposuSetting.ScaleCursorWithDistance, false);
         }
     }
 
@@ -78,5 +79,6 @@ namespace osu.Game.Rulesets.Fposu.Configuration
         BackgroundCube,
         Skybox,
         ShowBackground,
+        ScaleCursorWithDistance,
     }
 }

@@ -75,6 +75,9 @@ namespace osu.Game.Rulesets.Fposu.Configuration
                 case FposuSetting.ShowBackground:
                     return OsuSetting.SlopFposuShowBackground;
 
+                case FposuSetting.ScaleCursorWithDistance:
+                    return OsuSetting.SlopFposuScaleCursorWithDistance;
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(setting), setting, null);
             }

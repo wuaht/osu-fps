@@ -57,6 +57,13 @@ namespace osu.Game.Rulesets.Fposu.UI
         private Playfield? playfield;
 
         private Bindable<float> fov = null!;
+        private Bindable<float> distance = null!;
+        private Bindable<bool> scaleCursorWithDistance = null!;
+
+        /// <summary>
+        /// A screen at the default distance, whose size the cursor keeps while it isn't scaled with the distance.
+        /// </summary>
+        private FposuScreenMesh? referenceMesh;
 
         /// <summary>
         /// The displayed objects by the drawable they display (a hit object, or an approach circle).
@@ -80,6 +87,8 @@ namespace osu.Game.Rulesets.Fposu.UI
         private void load(OsuConfigManager config, Storage storage)
         {
             fov = FposuConfig.GetBindable<float>(config, storage, FposuSetting.Fov);
+            distance = FposuConfig.GetBindable<float>(config, storage, FposuSetting.Distance);
+            scaleCursorWithDistance = FposuConfig.GetBindable<bool>(config, storage, FposuSetting.ScaleCursorWithDistance);
         }
 
         /// <summary>
@@ -172,19 +181,40 @@ namespace osu.Game.Rulesets.Fposu.UI
         /// <summary>
         /// Returns the size of pixels of the 2D game in the window, at the centre of the screen while looking straight at it.
         /// This doesn't depend on where the camera looks, so the cursor keeps its size while turning.
+        /// Unless the cursor is scaled with the distance, the screen is assumed to be at the default distance, so that changing the distance doesn't change the cursor.
         /// </summary>
         private float getCursorScale()
         {
-            Vector2 centre = screen.ScreenSpaceDrawQuad.Centre;
-            Vector3 centrePosition = getScreenPosition(centre);
-            float distance = centrePosition.Length;
+            var mesh = screen.Mesh;
 
-            if (distance <= 0)
+            if (!scaleCursorWithDistance.Value)
+            {
+                if (referenceMesh == null || referenceMesh.Curved != mesh.Curved || referenceMesh.AspectRatio != mesh.AspectRatio
+                    || referenceMesh.HorizontalScale != mesh.HorizontalScale || referenceMesh.VerticalScale != mesh.VerticalScale)
+                {
+                    referenceMesh = new FposuScreenMesh(distance.Default, mesh.Curved, mesh.AspectRatio, mesh.HorizontalScale, mesh.VerticalScale);
+                }
+
+                mesh = referenceMesh;
+            }
+
+            float screenWidth = screen.ScreenSpaceDrawQuad.Width;
+
+            if (screenWidth <= 0)
                 return 1;
 
-            float unitsPerPixel = (getScreenPosition(centre + new Vector2(tangent_step, 0)) - getScreenPosition(centre - new Vector2(tangent_step, 0))).Length / (2 * tangent_step);
+            // the step of tangent_step pixels of the 2D game, in UV coordinates of the screen.
+            var step = new Vector2(tangent_step / screenWidth, 0);
+            var centre = new Vector2(0.5f);
 
-            return focalLength * unitsPerPixel / distance;
+            float centreDistance = mesh.GetPosition(centre).Length;
+
+            if (centreDistance <= 0)
+                return 1;
+
+            float unitsPerPixel = (mesh.GetPosition(centre + step) - mesh.GetPosition(centre - step)).Length / (2 * tangent_step);
+
+            return focalLength * unitsPerPixel / centreDistance;
         }
 
         /// <summary>

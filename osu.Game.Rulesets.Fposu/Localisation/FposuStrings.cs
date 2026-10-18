@@ -64,6 +64,17 @@ namespace osu.Game.Rulesets.Fposu.Localisation
             @"How far away the playfield is. Lower values make it appear larger.");
 
         /// <summary>
+        /// "Scale cursor with distance"
+        /// </summary>
+        public static LocalisableString ScaleCursorWithDistance => new TranslatableString(getKey(@"fposu_scale_cursor_with_distance"), @"Scale cursor with distance");
+
+        /// <summary>
+        /// "Sizes the cursor like the playfield, so that it gets smaller the further away the playfield is. When disabled, the cursor keeps its size when the distance changes."
+        /// </summary>
+        public static LocalisableString ScaleCursorWithDistanceDescription => new TranslatableString(getKey(@"fposu_scale_cursor_with_distance_description"),
+            @"Sizes the cursor like the playfield, so that it gets smaller the further away the playfield is. When disabled, the cursor keeps its size when the distance changes.");
+
+        /// <summary>
         /// "Curved playfield"
         /// </summary>
         public static LocalisableString Curved => new TranslatableString(getKey(@"fposu_curved"), @"Curved playfield");
