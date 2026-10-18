@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="500" alt="osu! logo" src="assets/osu-fps.png">
+  <img width="500" alt="osu! logo" src="assets/osufpslogo.png">
 </p>
 
 # osu!fps
