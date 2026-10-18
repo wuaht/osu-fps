@@ -73,10 +73,7 @@ namespace osu.Game.Rulesets.Fposu.UI
         {
             base.LoadComplete();
 
-            var depthMod = Mods.OfType<FposuModDepth>().FirstOrDefault();
-
-            if (depthMod != null)
-                mainAdjustmentContainer!.DepthLayer.Apply(depthMod, Playfield);
+            mainAdjustmentContainer!.DepthLayer.Apply(Mods.OfType<FposuModDepth>().FirstOrDefault(), Playfield);
 
 #if !SLOP
             moveOverlaysToScreen();

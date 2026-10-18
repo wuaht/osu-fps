@@ -29,6 +29,7 @@ namespace osu.Game.Rulesets.Fposu.UI
     /// The objects keep their regular 2D layout (so that they are hit as usual) and are drawn through proxies with a perspective projection.
     /// Each object is a plane at its depth, parallel to the screen at the point which is aimed at (the centre of circles and the ball of sliders),
     /// so that this point is exactly where it is on the screen when the object reaches the screen.
+    /// The cursor is always displayed here (even without the mod), so that large cursors aren't cut off by the edges of the screen.
     /// </remarks>
     public partial class FposuDepthLayer : CompositeDrawable
     {
@@ -82,9 +83,9 @@ namespace osu.Game.Rulesets.Fposu.UI
         }
 
         /// <summary>
-        /// Starts displaying the objects of a playfield in 3D.
+        /// Starts displaying the cursor of a playfield in 3D, and its objects as well with the depth mod.
         /// </summary>
-        public void Apply(FposuModDepth depthMod, Playfield objectPlayfield)
+        public void Apply(FposuModDepth? depthMod, Playfield objectPlayfield)
         {
             mod = depthMod;
             playfield = objectPlayfield;
@@ -102,14 +103,22 @@ namespace osu.Game.Rulesets.Fposu.UI
             if (cursor != null)
                 cursor.Alpha = 0;
 
-            if (mod == null || playfield == null || !screen.IsLoaded || screen.DrawWidth <= 0)
+            if (playfield == null || !screen.IsLoaded || screen.DrawWidth <= 0)
                 return;
 
-            foreach (var entry in playfield.HitObjectContainer.AliveEntries)
+            if (mod != null)
+                displayObjects(mod, playfield);
+
+            displayCursor();
+        }
+
+        private void displayObjects(FposuModDepth depthMod, Playfield objectPlayfield)
+        {
+            foreach (var entry in objectPlayfield.HitObjectContainer.AliveEntries)
             {
                 var drawable = entry.Value;
 
-                if (mod.GetDepth(drawable) is not float depth || !TryGetProjection(drawable, depth, out var projection, out float viewDepth))
+                if (depthMod.GetDepth(drawable) is not float depth || !TryGetProjection(drawable, depth, out var projection, out float viewDepth))
                     continue;
 
                 projections[drawable] = (projection, viewDepth);
@@ -127,12 +136,11 @@ namespace osu.Game.Rulesets.Fposu.UI
                     display(circle.ProxiedLayer, projection, viewDepth * 0.9999f);
                 }
             }
-
-            displayCursor();
         }
 
         /// <summary>
         /// Displays the cursor on the screen in front of all objects (it would otherwise be hidden behind objects in front of the screen).
+        /// It isn't drawn to the frame buffer of the screen, so that large cursors (e.g. of some skins) aren't cut off by its edges.
         /// Only the cursor itself, as its trail and ripples belong to the screen.
         /// </summary>
         private void displayCursor()
@@ -140,7 +148,14 @@ namespace osu.Game.Rulesets.Fposu.UI
             if (playfield?.Cursor?.ActiveCursor is not Drawable activeCursor)
                 return;
 
-            if (!tryGetProjection(activeCursor.ScreenSpaceDrawQuad.Centre, 0, out var projection, out _))
+            Vector2 anchor = activeCursor.ScreenSpaceDrawQuad.Centre;
+
+            // the cursor is moved off the screen while not looking at it, where the orientation of the screen isn't defined.
+            Vector2 uv = screen.ToUVFromScreenSpace(anchor);
+            if (uv.X < 0 || uv.X > 1 || uv.Y < 0 || uv.Y > 1)
+                return;
+
+            if (!tryGetProjection(anchor, 0, out var projection, out _))
                 return;
 
             if (cursor == null)
