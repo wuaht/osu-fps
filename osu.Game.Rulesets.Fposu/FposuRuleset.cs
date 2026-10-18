@@ -8,6 +8,11 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Localisation;
 using osu.Game.Beatmaps;
+#if !SLOP
+using osu.Game.Configuration;
+using osu.Game.Rulesets.Configuration;
+using osu.Game.Rulesets.Osu.Configuration;
+#endif
 using osu.Game.Overlays.Settings;
 using osu.Game.Rulesets.Difficulty;
 using osu.Game.Rulesets.Fposu.Mods;
@@ -114,7 +119,13 @@ namespace osu.Game.Rulesets.Fposu
 
         public override IConvertibleReplayFrame CreateConvertibleReplayFrame() => new OsuReplayFrame();
 
+#if SLOP
         // the configuration and settings of osu! are used (see IRulesetVariant), so osu!fps has none of its own.
+#else
+        // the playfield of osu! requires its configuration (e.g. for the replay analysis of autoplay and replays).
+        // official clients can't share the configuration of osu!, so osu!fps stores its own.
+        public override IRulesetConfigManager CreateConfig(SettingsStore? settings) => new OsuRulesetConfigManager(settings, RulesetInfo);
+#endif
 
         public override ISkin? CreateSkinTransformer(ISkin skin, IBeatmap beatmap) => osuRuleset.CreateSkinTransformer(skin, beatmap);
 
