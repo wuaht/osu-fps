@@ -104,6 +104,9 @@ namespace osu.Game.Rulesets.Fposu
                 case OsuModDepth when mod.GetType() == typeof(OsuModDepth):
                     return new FposuModDepth();
 
+                case OsuModBarrelRoll when mod.GetType() == typeof(OsuModBarrelRoll):
+                    return new FposuModBarrelRoll();
+
                 default:
                     return mod;
             }

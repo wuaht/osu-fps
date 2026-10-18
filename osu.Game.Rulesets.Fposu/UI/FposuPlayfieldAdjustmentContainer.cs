@@ -51,6 +51,18 @@ namespace osu.Game.Rulesets.Fposu.UI
 
         private readonly OsuPlayfieldAdjustmentContainer content;
 
+        private readonly Container rotatingContent;
+
+        /// <summary>
+        /// The rotation of the game on the screen (e.g. by barrel roll), along with the background and the storyboard.
+        /// The overlays and the screen itself aren't rotated.
+        /// </summary>
+        public float ContentRotation
+        {
+            get => rotatingContent.Rotation;
+            set => rotatingContent.Rotation = value;
+        }
+
         private IBindable<bool> showBackground = null!;
 
         protected override Container<Drawable> Content => content;
@@ -63,10 +75,19 @@ namespace osu.Game.Rulesets.Fposu.UI
                 {
                     Children = new Drawable[]
                     {
-                        new BeatmapBackground(),
-                        Storyboard = new Container { RelativeSizeAxes = Axes.Both },
-                        content = new OsuPlayfieldAdjustmentContainer { AlignWithStoryboard = true },
-                        StoryboardOverlayLayer = new Container { RelativeSizeAxes = Axes.Both },
+                        rotatingContent = new Container
+                        {
+                            RelativeSizeAxes = Axes.Both,
+                            Anchor = Anchor.Centre,
+                            Origin = Anchor.Centre,
+                            Children = new Drawable[]
+                            {
+                                new BeatmapBackground(),
+                                Storyboard = new Container { RelativeSizeAxes = Axes.Both },
+                                content = new OsuPlayfieldAdjustmentContainer { AlignWithStoryboard = true },
+                                StoryboardOverlayLayer = new Container { RelativeSizeAxes = Axes.Both },
+                            }
+                        },
                         RulesetOverlays = new Container { RelativeSizeAxes = Axes.Both },
                         BreakAndSkipOverlays = new Container { RelativeSizeAxes = Axes.Both },
                     }
