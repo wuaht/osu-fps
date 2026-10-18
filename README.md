@@ -10,6 +10,8 @@ Gameplay is the same as in osu! (beatmaps, mods, scoring and difficulty are take
 
 This ruleset was a gamemode for [my modded osu!lazer client](https://github.com/wuaht/osu), but now it is a separate ruleset and can be used with standard osu!lazer as well. (if u want automated updates for osu!fps u can use the client if u want)
 
+![](https://raw.githubusercontent.com/wuaht/osu-fps/refs/heads/master/assets/preview.gif)
+
 ## Installing
 
 1. Download `osu.Game.Rulesets.Fposu.dll` from the [latest release](https://github.com/wuaht/osu-fps/releases/latest).
