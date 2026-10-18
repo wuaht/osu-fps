@@ -162,8 +162,29 @@ namespace osu.Game.Rulesets.Fposu.UI
             }
 
             cursor.Alpha = 1;
-            // the 2D game is laid out in the area of the window, so the cursor keeps its regular size.
-            cursor.Projection = Matrix4.CreateTranslation(position.X - anchor.X, position.Y - anchor.Y, 0);
+            // scaled like the 2D game where it's looked at, so that the cursor has the same size as the hit objects.
+            float scale = getCursorScale();
+            cursor.Projection = Matrix4.CreateTranslation(-anchor.X, -anchor.Y, 0)
+                                * Matrix4.CreateScale(scale, scale, 1)
+                                * Matrix4.CreateTranslation(position.X, position.Y, 0);
+        }
+
+        /// <summary>
+        /// Returns the size of pixels of the 2D game in the window, at the centre of the screen while looking straight at it.
+        /// This doesn't depend on where the camera looks, so the cursor keeps its size while turning.
+        /// </summary>
+        private float getCursorScale()
+        {
+            Vector2 centre = screen.ScreenSpaceDrawQuad.Centre;
+            Vector3 centrePosition = getScreenPosition(centre);
+            float distance = centrePosition.Length;
+
+            if (distance <= 0)
+                return 1;
+
+            float unitsPerPixel = (getScreenPosition(centre + new Vector2(tangent_step, 0)) - getScreenPosition(centre - new Vector2(tangent_step, 0))).Length / (2 * tangent_step);
+
+            return focalLength * unitsPerPixel / distance;
         }
 
         /// <summary>
@@ -188,8 +209,6 @@ namespace osu.Game.Rulesets.Fposu.UI
                 return null;
 
             // the same projection as the screen (see tryGetProjection).
-            float focalLength = screenQuad.Width / 2 / MathF.Tan(MathHelper.DegreesToRadians(fov.Value) / 2);
-
             return screenQuad.Centre + new Vector2(Vector3.Dot(p, camera.Right), -Vector3.Dot(p, camera.Up)) * (focalLength / w);
         }
 
@@ -305,7 +324,6 @@ namespace osu.Game.Rulesets.Fposu.UI
             // the same projection as the screen (see FposuScreen).
             var screenQuad = screen.ScreenSpaceViewRectangle;
             Vector2 centre = screenQuad.Centre;
-            float focalLength = screenQuad.Width / 2 / MathF.Tan(MathHelper.DegreesToRadians(fov.Value) / 2);
 
             // for a point p in 3D, the projected position is (x / w, y / w), with
             //   x = centre.X * dot(p, forward) + focalLength * dot(p, right),
@@ -329,6 +347,11 @@ namespace osu.Game.Rulesets.Fposu.UI
 
             return true;
         }
+
+        /// <summary>
+        /// The focal length of the projection of the screen (see FposuScreen), in pixels of the window.
+        /// </summary>
+        private float focalLength => screen.ScreenSpaceViewRectangle.Width / 2 / MathF.Tan(MathHelper.DegreesToRadians(fov.Value) / 2);
 
         /// <summary>
         /// Returns the position on the screen in 3D of a position in screen space of the 2D game.
