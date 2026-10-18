@@ -42,6 +42,12 @@ namespace osu.Game.Rulesets.Fposu.Configuration
                 case FposuSetting.CmPer360:
                     return OsuSetting.SlopFposuCmPer360;
 
+                case FposuSetting.SensitivityGame:
+                    return OsuSetting.SlopFposuSensitivityGame;
+
+                case FposuSetting.GameSensitivity:
+                    return OsuSetting.SlopFposuGameSensitivity;
+
                 case FposuSetting.Fov:
                     return OsuSetting.SlopFposuFov;
 

@@ -1,6 +1,7 @@
 // Copyright (c) ppy Pty Ltd <contact@ppy.sh>. Licensed under the MIT Licence.
 // See the LICENCE file in the repository root for full licence text.
 
+using System;
 using osu.Framework.Configuration;
 using osu.Framework.Platform;
 
@@ -48,6 +49,8 @@ namespace osu.Game.Rulesets.Fposu.Configuration
 
             SetDefault(FposuSetting.MouseDpi, 400, 50, 32000);
             SetDefault(FposuSetting.CmPer360, 30.0, 1.0, 200.0, 0.000001);
+            SetDefault(FposuSetting.SensitivityGame, (int)FposuSensitivityGame.CmPer360, 0, Enum.GetValues<FposuSensitivityGame>().Length - 1);
+            SetDefault(FposuSetting.GameSensitivity, 1.0, 0.0, 200.0, 0.000001);
             SetDefault(FposuSetting.Fov, 103f, 20f, 150f, 1f);
             SetDefault(FposuSetting.Distance, 0.5f, 0.1f, 2f, 0.01f);
             SetDefault(FposuSetting.Curved, true);
@@ -64,6 +67,8 @@ namespace osu.Game.Rulesets.Fposu.Configuration
     {
         MouseDpi,
         CmPer360,
+        SensitivityGame,
+        GameSensitivity,
         Fov,
         Distance,
         Curved,

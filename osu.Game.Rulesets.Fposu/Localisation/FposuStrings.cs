@@ -128,6 +128,28 @@ namespace osu.Game.Rulesets.Fposu.Localisation
         public static LocalisableString BackgroundCubeDescription => new TranslatableString(getKey(@"fposu_background_cube_description"),
             @"Displays a grid around you, which helps with orientation.");
 
+        /// <summary>
+        /// "Sensitivity unit"
+        /// </summary>
+        public static LocalisableString SensitivityGame => new TranslatableString(getKey(@"fposu_sensitivity_game"), @"Sensitivity unit");
+
+        /// <summary>
+        /// "Enter your sensitivity in cm/360 or in the units of another game. It gets converted to cm/360 using your mouse DPI."
+        /// </summary>
+        public static LocalisableString SensitivityGameDescription => new TranslatableString(getKey(@"fposu_sensitivity_game_description"),
+            @"Enter your sensitivity in cm/360 or in the units of another game. It gets converted to cm/360 using your mouse DPI.");
+
+        /// <summary>
+        /// "Game sensitivity"
+        /// </summary>
+        public static LocalisableString GameSensitivity => new TranslatableString(getKey(@"fposu_game_sensitivity"), @"Game sensitivity");
+
+        /// <summary>
+        /// "The sensitivity as it is entered in the selected game."
+        /// </summary>
+        public static LocalisableString GameSensitivityDescription => new TranslatableString(getKey(@"fposu_game_sensitivity_description"),
+            @"The sensitivity as it is entered in the selected game.");
+
         private static string getKey(string key) => $"{prefix}:{key}";
     }
 }
