@@ -21,6 +21,12 @@ namespace osu.Game.Rulesets.Fposu.Localisation
             @"Convert your sensitivity: [mouse-sensitivity.com]({0})", url);
 
         /// <summary>
+        /// "Sensitivity requires "High precision mouse" in the mouse settings. Without it, the camera follows the cursor instead."
+        /// </summary>
+        public static LocalisableString HighPrecisionMouseRequired => new TranslatableString(getKey(@"fposu_high_precision_mouse_required"),
+            @"Sensitivity requires ""High precision mouse"" in the mouse settings. Without it, the camera follows the cursor instead.");
+
+        /// <summary>
         /// "Mouse DPI"
         /// </summary>
         public static LocalisableString MouseDpi => new TranslatableString(getKey(@"fposu_mouse_dpi"), @"Mouse DPI");

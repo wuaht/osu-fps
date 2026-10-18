@@ -9,6 +9,7 @@ using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Game.Configuration;
@@ -40,8 +41,15 @@ namespace osu.Game.Rulesets.Fposu.UI
 
         private Bindable<int> gameSetting = null!;
         private Bindable<double> gameSensitivitySetting = null!;
+        private Bindable<int> dpiSetting = null!;
+        private Bindable<double> cmPer360Setting = null!;
+
+        // unbound copies, so that disabling them doesn't disable the settings themselves.
         private Bindable<int> dpi = null!;
         private Bindable<double> cmPer360 = null!;
+
+        private IBindable<bool>? highPrecisionMouse;
+        private readonly Bindable<SettingsNote.Data?> highPrecisionMouseNote = new Bindable<SettingsNote.Data?>();
 
         private SettingsItemV2 cmPer360Item = null!;
         private SettingsItemV2 gameSensitivityItem = null!;
@@ -49,14 +57,18 @@ namespace osu.Game.Rulesets.Fposu.UI
         private bool syncing;
 
         [BackgroundDependencyLoader]
-        private void load(Storage storage, OsuConfigManager osuConfig)
+        private void load(Storage storage, OsuConfigManager osuConfig, GameHost host)
         {
+            highPrecisionMouse = host.AvailableInputHandlers.OfType<MouseHandler>().FirstOrDefault()?.UseRelativeMode.GetBoundCopy();
+
             Bindable<T> bind<T>(FposuSetting setting) => FposuConfig.GetBindable<T>(osuConfig, storage, setting);
 
             gameSetting = bind<int>(FposuSetting.SensitivityGame);
             gameSensitivitySetting = bind<double>(FposuSetting.GameSensitivity);
-            dpi = bind<int>(FposuSetting.MouseDpi);
-            cmPer360 = bind<double>(FposuSetting.CmPer360);
+            dpiSetting = bind<int>(FposuSetting.MouseDpi);
+            cmPer360Setting = bind<double>(FposuSetting.CmPer360);
+            dpi = dpiSetting.GetUnboundCopy();
+            cmPer360 = cmPer360Setting.GetUnboundCopy();
 
             game.Value = (FposuSensitivityGame)gameSetting.Value;
             updateGameSensitivityRange();
@@ -69,7 +81,10 @@ namespace osu.Game.Rulesets.Fposu.UI
                     Caption = FposuStrings.SensitivityGame,
                     HintText = FposuStrings.SensitivityGameDescription,
                     Current = game,
-                }),
+                })
+                {
+                    Note = { BindTarget = highPrecisionMouseNote },
+                },
                 new SensitivityConverterNote(),
                 new SettingsItemV2(new FormSliderBar<int>
                 {
@@ -168,6 +183,9 @@ namespace osu.Game.Rulesets.Fposu.UI
         {
             base.LoadComplete();
 
+            bindLocal(dpiSetting, dpi);
+            bindLocal(cmPer360Setting, cmPer360);
+
             game.BindValueChanged(g =>
             {
                 gameSetting.Value = (int)g.NewValue;
@@ -192,11 +210,37 @@ namespace osu.Game.Rulesets.Fposu.UI
             });
 
             dpi.BindValueChanged(_ => applyGameSensitivity());
+
+            // without high precision mouse, there is no raw relative movement, so the camera can only follow the cursor and the sensitivity has no effect.
+            // like the cursor sensitivity of osu!, the sensitivity settings are disabled then.
+            highPrecisionMouse?.BindValueChanged(e =>
+            {
+                game.Disabled = dpi.Disabled = cmPer360.Disabled = gameSensitivity.Disabled = !e.NewValue;
+                highPrecisionMouseNote.Value = e.NewValue ? null : new SettingsNote.Data(FposuStrings.HighPrecisionMouseRequired, SettingsNote.Type.Warning);
+            }, true);
+        }
+
+        /// <summary>
+        /// Keeps a local copy of a setting in sync with it, also while the local copy is disabled.
+        /// </summary>
+        private static void bindLocal<T>(Bindable<T> setting, Bindable<T> local)
+        {
+            setting.BindValueChanged(e =>
+            {
+                bool disabled = local.Disabled;
+
+                local.Disabled = false;
+                local.Value = e.NewValue;
+                local.Disabled = disabled;
+            });
+
+            local.BindValueChanged(e => setting.Value = e.NewValue);
         }
 
         private void applyGameSensitivity()
         {
-            if (syncing || game.Value == FposuSensitivityGame.CmPer360)
+            // the settings can only change on their own while disabled, so there is nothing to convert.
+            if (syncing || cmPer360.Disabled || game.Value == FposuSensitivityGame.CmPer360)
                 return;
 
             withSync(() => cmPer360.Value = FposuSensitivity.ToCmPer360(game.Value, gameSensitivity.Value, dpi.Value));
