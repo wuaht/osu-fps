@@ -73,6 +73,11 @@ namespace osu.Game.Rulesets.Fposu.UI
         private const float horizontal_scale = 1 + 2 * horizontal_overflow;
         private const float vertical_scale = 1 + 2 * vertical_overflow;
 
+        /// <summary>
+        /// The size of the screen relative to the window, including what is displayed beyond its edges.
+        /// </summary>
+        public static Vector2 RelativeScreenSize => new Vector2(horizontal_scale, vertical_scale);
+
         private static readonly Color4 environment_colour = new Color4(12, 12, 16, 255);
         private static readonly Color4 cube_line_colour = new Color4(255, 255, 255, 28);
 

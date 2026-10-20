@@ -4,6 +4,7 @@
 using System;
 using osu.Framework.Graphics;
 using osu.Framework.Input;
+using osu.Game.Rulesets.Fposu.UI;
 using osu.Game.Rulesets.Mods;
 using osu.Game.Rulesets.Objects.Drawables;
 using osu.Game.Rulesets.Osu.Mods;
@@ -40,6 +41,11 @@ namespace osu.Game.Rulesets.Fposu.Mods
             {
                 FlashlightSize = new Vector2(0, GetSize());
                 FlashlightSmoothness = 1.4f;
+
+                // the screen displays what is beyond the edges of the window as well (e.g. large approach circles), which has to be covered too.
+                Size = FposuScreen.RelativeScreenSize;
+                Anchor = Anchor.Centre;
+                Origin = Anchor.Centre;
             }
 
             public void OnSliderTrackingChange(DrawableSlider e)
