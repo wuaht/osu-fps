@@ -13,14 +13,14 @@ using osu.Framework.Input.Handlers.Mouse;
 using osu.Framework.Localisation;
 using osu.Framework.Platform;
 using osu.Game.Configuration;
-using osu.Game.Rulesets.Fposu.Configuration;
-using osu.Game.Rulesets.Fposu.Localisation;
 using osu.Game.Graphics;
 using osu.Game.Graphics.Containers;
 using osu.Game.Graphics.UserInterfaceV2;
+using osu.Game.Online.Chat;
 using osu.Game.Overlays;
 using osu.Game.Overlays.Settings;
-using osu.Game.Online.Chat;
+using osu.Game.Rulesets.Fposu.Configuration;
+using osu.Game.Rulesets.Fposu.Localisation;
 
 namespace osu.Game.Rulesets.Fposu.UI
 {
