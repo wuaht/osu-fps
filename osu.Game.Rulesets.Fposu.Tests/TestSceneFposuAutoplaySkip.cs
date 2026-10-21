@@ -72,6 +72,23 @@ namespace osu.Game.Rulesets.Fposu.Tests
             AddAssert("not skipped", () => Player.GameplayClockContainer.CurrentTime, () => Is.LessThan(timeBefore + 2000));
         }
 
+        /// <summary>
+        /// Hidden skip overlays (like the one of the outro, which stays enabled while hidden) mustn't be clicked.
+        /// </summary>
+        [Test]
+        public void TestClickHiddenSkipButton()
+        {
+            AddStep("hide skip overlay", () => screen.ChildrenOfType<SkipOverlay>().First().Hide());
+            AddStep("click where skip button was displayed", () =>
+            {
+                timeBefore = Player.GameplayClockContainer.CurrentTime;
+                InputManager.MoveMouseTo(windowPositionOfSkipButton());
+                InputManager.Click(MouseButton.Left);
+            });
+            AddWaitStep("wait", 5);
+            AddAssert("not skipped", () => Player.GameplayClockContainer.CurrentTime, () => Is.LessThan(timeBefore + 2000));
+        }
+
         [Test]
         public void TestSkipKey()
         {

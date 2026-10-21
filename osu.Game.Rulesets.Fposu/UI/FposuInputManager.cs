@@ -102,12 +102,26 @@ namespace osu.Game.Rulesets.Fposu.UI
 
             var skipButton = screen.ChildrenOfType<SkipOverlay>()
                                    .SelectMany(o => o.ChildrenOfType<OsuClickableContainer>())
-                                   .FirstOrDefault(b => b.Enabled.Value && b.IsPresent && b.ReceivePositionalInputAt(position));
+                                   .FirstOrDefault(b => b.Enabled.Value && isDisplayed(b, screen) && b.ReceivePositionalInputAt(position));
 
             if (skipButton == null)
                 return false;
 
             skipButton.TriggerClick();
+            return true;
+        }
+
+        /// <summary>
+        /// Whether a drawable is displayed on the screen, which hidden skip overlays (e.g. the one of the outro, which stays enabled) aren't.
+        /// </summary>
+        private static bool isDisplayed(Drawable drawable, FposuScreen screen)
+        {
+            for (Drawable? d = drawable; d != null && d != screen; d = d.Parent)
+            {
+                if (!d.IsPresent)
+                    return false;
+            }
+
             return true;
         }
 
