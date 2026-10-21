@@ -10,6 +10,7 @@ using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.Input.StateChanges;
 using osu.Framework.Platform;
+using osu.Framework.Testing;
 using osu.Game.Configuration;
 using osu.Game.Rulesets.Fposu.Configuration;
 using osu.Game.Graphics.Containers;
@@ -83,7 +84,31 @@ namespace osu.Game.Rulesets.Fposu.UI
             if (e is MouseDownEvent && mouseButtonsDisabled.Value && triggerHoveredSkipButton())
                 return true;
 
+            // replays control the input of this input manager, so the skip button on the screen doesn't receive the clicks of the user's cursor by itself.
+            // it stays clickable, like in osu!, where it is outside of the ruleset.
+            if (e is MouseDownEvent && ReplayInputHandler != null && triggerSkipButtonAt(e.ScreenSpaceMousePosition))
+                return true;
+
             return base.Handle(e);
+        }
+
+        /// <summary>
+        /// Clicks the skip button displayed at a position in the window, where the user's cursor is.
+        /// </summary>
+        private bool triggerSkipButtonAt(Vector2 windowPosition)
+        {
+            if (getScreen() is not FposuScreen screen || !screen.IsLoaded || screen.ToScreenSpaceFromWindow(windowPosition) is not Vector2 position)
+                return false;
+
+            var skipButton = screen.ChildrenOfType<SkipOverlay>()
+                                   .SelectMany(o => o.ChildrenOfType<OsuClickableContainer>())
+                                   .FirstOrDefault(b => b.Enabled.Value && b.IsPresent && b.ReceivePositionalInputAt(position));
+
+            if (skipButton == null)
+                return false;
+
+            skipButton.TriggerClick();
+            return true;
         }
 
         private bool triggerHoveredSkipButton()

@@ -207,6 +207,25 @@ namespace osu.Game.Rulesets.Fposu.UI
         /// </summary>
         public Vector2 ToUVFromScreenSpace(Vector2 screenSpacePosition) => DrawWidth > 0 && DrawHeight > 0 ? Vector2.Divide(ToLocalSpace(screenSpacePosition), DrawSize) : Vector2.Zero;
 
+        /// <summary>
+        /// Converts a position in the window, where the 3D environment is displayed, to screen space of the 2D game, at the part of the screen displayed there.
+        /// </summary>
+        /// <returns>The position in screen space of the 2D game, or <c>null</c> if the screen isn't displayed at the position.</returns>
+        public Vector2? ToScreenSpaceFromWindow(Vector2 windowPosition)
+        {
+            Vector2 centre = ScreenSpaceViewRectangle.Centre;
+
+            // the inverse of the projection of the draw node.
+            Vector3 direction = Camera.Forward * focalLength
+                                + Camera.Right * (windowPosition.X - centre.X)
+                                - Camera.Up * (windowPosition.Y - centre.Y);
+
+            return Mesh.Intersect(direction) is Vector2 uv ? ToScreenSpaceFromUV(uv) : null;
+        }
+
+        // the field of view is horizontal (like McOsu by default).
+        private float focalLength => ScreenSpaceViewRectangle.Width / 2 / MathF.Tan(MathHelper.DegreesToRadians(fov.Value) / 2);
+
         protected override void Update()
         {
             base.Update();
@@ -301,8 +320,7 @@ namespace osu.Game.Rulesets.Fposu.UI
                 right = Source.Camera.Right;
                 up = Source.Camera.Up;
 
-                // the field of view is horizontal (like McOsu by default).
-                focalLength = viewRectangle.Width / 2 / MathF.Tan(MathHelper.DegreesToRadians(Source.fov.Value) / 2);
+                focalLength = Source.focalLength;
 
                 drawCube = Source.backgroundCube.Value;
                 skyboxTexture = Source.currentSkyboxTexture;
